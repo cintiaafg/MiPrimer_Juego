@@ -12,7 +12,7 @@ public class MovimientoJugador : MonoBehaviour
     public float incrementoVelocidad = 0.5f;
     public int puntosPorNivel = 10;
     public float velocidadMaxima = 12f;
-    public bool JuegoTerminado => juegoTerminado;
+
     // Controles móviles
     public static float mobileX;
     public static float mobileZ;
@@ -25,6 +25,8 @@ public class MovimientoJugador : MonoBehaviour
     private float velocidadActual;
 
     public int Puntuacion { get; private set; }
+
+    public bool JuegoTerminado => juegoTerminado;
 
     void Start()
     {
@@ -42,23 +44,21 @@ public class MovimientoJugador : MonoBehaviour
         if (juegoTerminado)
             return;
 
-        // Actualizar puntuación según la distancia
         Puntuacion = Mathf.Max(
             0,
-            Mathf.FloorToInt(
-                transform.position.z - posicionInicialZ
-            )
+            Mathf.FloorToInt(transform.position.z - posicionInicialZ)
         );
 
-        // Aumentar dificultad cada 10 puntos
-        int nivel = Puntuacion / puntosPorNivel;
+        if (puntosPorNivel > 0)
+        {
+            int nivel = Puntuacion / puntosPorNivel;
 
-        velocidadActual = Mathf.Min(
-            velocidadAvance + nivel * incrementoVelocidad,
-            velocidadMaxima
-        );
+            velocidadActual = Mathf.Min(
+                velocidadAvance + nivel * incrementoVelocidad,
+                velocidadMaxima
+            );
+        }
 
-        // Salto mediante teclado
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Saltar();
@@ -116,24 +116,35 @@ public class MovimientoJugador : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Colisión detectada con: " + collision.gameObject.name);
+
+        if (collision.gameObject.CompareTag("obstaculo"))
+        {
+            Debug.Log("¡El jugador chocó con un obstáculo!");
+
+            TerminarJuego();
+        }
+    }
+
     public void TerminarJuego()
     {
+        if (juegoTerminado)
+            return;
+
         juegoTerminado = true;
 
-        rb.linearVelocity = Vector3.zero;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+        }
 
-        Debug.Log("Juego terminado. Puntuación: " + Puntuacion);
+        Debug.Log("GAME OVER. Puntuación: " + Puntuacion);
     }
 
     public float ObtenerVelocidad()
     {
         return velocidadActual;
     }
-    private void OnCollisionEnter(Collision collision)
-{
-    if (collision.gameObject.CompareTag("Obstaculo"))
-    {
-        TerminarJuego();
-    }
-}
 }

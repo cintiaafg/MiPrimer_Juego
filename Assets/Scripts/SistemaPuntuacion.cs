@@ -10,6 +10,7 @@ public class SistemaPuntuacion : MonoBehaviour
     public TMP_Text textoPuntuacion;
     public TMP_Text textoRecord;
     public TMP_Text textoGameOver;
+    public TMP_Text textoNivel;
 
     private int mejorPuntuacion;
 
@@ -45,6 +46,9 @@ public class SistemaPuntuacion : MonoBehaviour
                 "PUNTOS: " + puntuacionActual;
         }
 
+        // Actualizar nivel
+        ActualizarNivel(puntuacionActual);
+
         // Guardar un nuevo récord
         if (puntuacionActual > mejorPuntuacion)
         {
@@ -73,6 +77,33 @@ public class SistemaPuntuacion : MonoBehaviour
             }
         }
     }
+
+
+void ActualizarNivel(int puntos)
+{
+    if (textoNivel == null)
+    {
+        Debug.LogError("No está asignado TextoNivel en GameManager");
+        return;
+    }
+
+    if (puntos < 80)
+    {
+        textoNivel.text = "NIVEL 1 - FACIL";
+    }
+    else if (puntos < 50)
+    {
+        textoNivel.text = "NIVEL 2 - MEDIO";
+    }
+    else
+    {
+        textoNivel.text = "NIVEL 3 - DIFICIL";
+    }
+
+    Debug.Log("Puntos: " + puntos +
+              " | Nivel: " + textoNivel.text);
+}
+
 
     void ActualizarRecord()
     {
