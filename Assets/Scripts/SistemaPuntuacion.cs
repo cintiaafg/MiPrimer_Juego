@@ -87,11 +87,11 @@ void ActualizarNivel(int puntos)
         return;
     }
 
-    if (puntos < 80)
+    if (puntos < 100)
     {
         textoNivel.text = "NIVEL 1 - FACIL";
     }
-    else if (puntos < 50)
+    else if (puntos < 200)
     {
         textoNivel.text = "NIVEL 2 - MEDIO";
     }
@@ -99,9 +99,6 @@ void ActualizarNivel(int puntos)
     {
         textoNivel.text = "NIVEL 3 - DIFICIL";
     }
-
-    Debug.Log("Puntos: " + puntos +
-              " | Nivel: " + textoNivel.text);
 }
 
 
