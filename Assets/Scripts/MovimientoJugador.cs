@@ -13,6 +13,10 @@ public class MovimientoJugador : MonoBehaviour
     public int puntosPorNivel = 10;
     public float velocidadMaxima = 12f;
 
+    [Header("Efectos visuales")]
+    public ParticleSystem particulasSalto;
+    public ParticleSystem particulasAterrizaje;
+
     // Controles móviles
     public static float mobileX;
     public static float mobileZ;
@@ -37,6 +41,13 @@ public class MovimientoJugador : MonoBehaviour
 
         mobileX = 0;
         mobileZ = 0;
+
+        // Evitar que las partículas se reproduzcan al iniciar
+        if (particulasSalto != null)
+            particulasSalto.Stop();
+
+        if (particulasAterrizaje != null)
+            particulasAterrizaje.Stop();
     }
 
     void Update()
@@ -89,12 +100,18 @@ public class MovimientoJugador : MonoBehaviour
 
     public void Saltar()
     {
-        if (puedeSaltar && !juegoTerminado)
+        if (puedeSaltar && !juegoTerminado && rb != null)
         {
             rb.AddForce(
                 Vector3.up * fuerzaSalto,
                 ForceMode.Impulse
             );
+
+            // Reproducir partículas al saltar
+            if (particulasSalto != null)
+            {
+                particulasSalto.Play();
+            }
 
             puedeSaltar = false;
         }
@@ -118,13 +135,27 @@ public class MovimientoJugador : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Colisión detectada con: " + collision.gameObject.name);
+        Debug.Log(
+            "Colisión detectada con: " +
+            collision.gameObject.name
+        );
 
+        // Detectar obstáculos
         if (collision.gameObject.CompareTag("obstaculo"))
         {
             Debug.Log("¡El jugador chocó con un obstáculo!");
 
             TerminarJuego();
+            return;
+        }
+
+        // Detectar aterrizaje
+        if (collision.gameObject.CompareTag("Suelo"))
+        {
+            if (particulasAterrizaje != null)
+            {
+                particulasAterrizaje.Play();
+            }
         }
     }
 
@@ -140,7 +171,16 @@ public class MovimientoJugador : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
         }
 
-        Debug.Log("GAME OVER. Puntuación: " + Puntuacion);
+        // Detener los efectos visuales
+        if (particulasSalto != null)
+            particulasSalto.Stop();
+
+        if (particulasAterrizaje != null)
+            particulasAterrizaje.Stop();
+
+        Debug.Log(
+            "GAME OVER. Puntuación: " + Puntuacion
+        );
     }
 
     public float ObtenerVelocidad()
