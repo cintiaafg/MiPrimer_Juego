@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class CamaraSeguimiento : MonoBehaviour
@@ -8,8 +7,10 @@ public class CamaraSeguimiento : MonoBehaviour
 
     [Header("Configuración de cámara")]
     public Vector3 desplazamiento = new Vector3(0, 5, -7);
-
     public float suavizado = 5f;
+
+    [Header("Orientación de cámara")]
+    public float alturaObjetivo = 1.2f;
 
     void LateUpdate()
     {
@@ -29,7 +30,7 @@ public class CamaraSeguimiento : MonoBehaviour
 
         // Mantener al personaje en el centro de la vista
         transform.LookAt(
-            objetivo.position + Vector3.up * 1.2f
+            objetivo.position + Vector3.up * alturaObjetivo
         );
     }
 }

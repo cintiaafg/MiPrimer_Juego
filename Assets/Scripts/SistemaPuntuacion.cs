@@ -1,6 +1,6 @@
-
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class SistemaPuntuacion : MonoBehaviour
 {
@@ -12,7 +12,11 @@ public class SistemaPuntuacion : MonoBehaviour
     public TMP_Text textoGameOver;
     public TMP_Text textoNivel;
 
+    [Header("Boton de reinicio")]
+    public GameObject botonReiniciar;
+
     private int mejorPuntuacion;
+    private bool partidaFinalizada = false;
 
     private const string CLAVE_RECORD =
         "Jengibre_MejorPuntuacion";
@@ -23,10 +27,16 @@ public class SistemaPuntuacion : MonoBehaviour
         mejorPuntuacion =
             PlayerPrefs.GetInt(CLAVE_RECORD, 0);
 
-        // Ocultar mensaje inicial
+        // Ocultar mensaje de Game Over
         if (textoGameOver != null)
         {
             textoGameOver.gameObject.SetActive(false);
+        }
+
+        // Ocultar botón de reinicio
+        if (botonReiniciar != null)
+        {
+            botonReiniciar.SetActive(false);
         }
 
         ActualizarRecord();
@@ -64,9 +74,12 @@ public class SistemaPuntuacion : MonoBehaviour
             ActualizarRecord();
         }
 
-        // Mostrar Game Over
-        if (jugador.JuegoTerminado)
+        // Detectar el final de la partida
+        if (jugador.JuegoTerminado && !partidaFinalizada)
         {
+            partidaFinalizada = true;
+
+            // Mostrar mensaje de Game Over
             if (textoGameOver != null)
             {
                 textoGameOver.gameObject.SetActive(true);
@@ -75,33 +88,36 @@ public class SistemaPuntuacion : MonoBehaviour
                     "¡PARTIDA TERMINADA!\n" +
                     "Puntuación: " + puntuacionActual;
             }
+
+            // Mostrar botón de reinicio
+            if (botonReiniciar != null)
+            {
+                botonReiniciar.SetActive(true);
+            }
         }
     }
 
-
-void ActualizarNivel(int puntos)
-{
-    if (textoNivel == null)
+    // Actualizar el nivel según la puntuación
+    void ActualizarNivel(int puntos)
     {
-        Debug.LogError("No está asignado TextoNivel en GameManager");
-        return;
+        if (textoNivel == null)
+            return;
+
+        if (puntos < 100)
+        {
+            textoNivel.text = "NIVEL 1 - FACIL";
+        }
+        else if (puntos < 200)
+        {
+            textoNivel.text = "NIVEL 2 - MEDIO";
+        }
+        else
+        {
+            textoNivel.text = "NIVEL 3 - DIFICIL";
+        }
     }
 
-    if (puntos < 100)
-    {
-        textoNivel.text = "NIVEL 1 - FACIL";
-    }
-    else if (puntos < 200)
-    {
-        textoNivel.text = "NIVEL 2 - MEDIO";
-    }
-    else
-    {
-        textoNivel.text = "NIVEL 3 - DIFICIL";
-    }
-}
-
-
+    // Actualizar el récord
     void ActualizarRecord()
     {
         if (textoRecord != null)
@@ -109,5 +125,15 @@ void ActualizarNivel(int puntos)
             textoRecord.text =
                 "RÉCORD: " + mejorPuntuacion;
         }
+    }
+
+    // Reiniciar la escena actual
+    public void ReiniciarPartida()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene(
+            SceneManager.GetActiveScene().buildIndex
+        );
     }
 }
