@@ -449,6 +449,7 @@ UnityEngine.CanvasRenderer::set_hasPopInstruction_Injected
 UnityEngine.CanvasRenderer::set_materialCount_Injected
 UnityEngine.CanvasRenderer::set_popMaterialCount_Injected
 UnityEngine.Collider::get_enabled_Injected
+UnityEngine.Collider::get_isTrigger_Injected
 UnityEngine.Collider::ClosestPoint_Injected
 UnityEngine.Collider::get_bounds_Injected
 UnityEngine.Collider::set_isTrigger_Injected
@@ -598,6 +599,7 @@ UnityEngine.GameObject::TryGetComponentFastPath_Injected
 UnityEngine.GeometryUtility::Internal_ExtractPlanes_Injected
 UnityEngine.Gizmos::DrawIcon_Injected
 UnityEngine.Gizmos::DrawLine_Injected
+UnityEngine.Gizmos::DrawWireSphere_Injected
 UnityEngine.Gizmos::set_color_Injected
 UnityEngine.Gizmos::set_matrix_Injected
 UnityEngine.GL::get_invertCulling
@@ -739,9 +741,7 @@ UnityEngine.HDROutputSettings::GetDisplayColorGamut
 UnityEngine.HDROutputSettings::GetGraphicsFormat
 UnityEngine.ImageConversion::LoadImage_Injected
 UnityEngine.ImageConversion::EncodeToR2DInternal_Injected
-UnityEngine.Input::GetKeyDownInt
 UnityEngine.Input::GetKeyInt
-UnityEngine.Input::GetKeyUpInt
 UnityEngine.Input::GetMouseButton
 UnityEngine.Input::GetMouseButtonDown
 UnityEngine.Input::GetMouseButtonUp
@@ -760,9 +760,7 @@ UnityEngine.Input::get_imeCompositionMode
 UnityEngine.IntegratedSubsystem::IsRunning_Injected
 UnityEngine.IntegratedSubsystem::SetHandle_Injected
 UnityEngine.Internal.InputUnsafeUtility::GetButtonDown_Injected
-UnityEngine.Internal.InputUnsafeUtility::GetButtonUp_Injected
 UnityEngine.Internal.InputUnsafeUtility::GetButtonUp__Unmanaged
-UnityEngine.Internal.InputUnsafeUtility::GetButton_Injected
 UnityEngine.Internal.InputUnsafeUtility::GetButton__Unmanaged
 UnityEngine.Internal.InputUnsafeUtility::GetKeyDownString__Unmanaged
 UnityEngine.Internal.InputUnsafeUtility::GetKeyString__Unmanaged
@@ -770,7 +768,6 @@ UnityEngine.Internal.InputUnsafeUtility::GetKeyUpString__Unmanaged
 UnityEngine.Internal.InputUnsafeUtility::GetButtonDown__Unmanaged
 UnityEngine.Internal.InputUnsafeUtility::GetAxisRaw_Injected
 UnityEngine.Internal.InputUnsafeUtility::GetAxisRaw__Unmanaged
-UnityEngine.Internal.InputUnsafeUtility::GetAxis_Injected
 UnityEngine.Internal.InputUnsafeUtility::GetAxis__Unmanaged
 UnityEngine.Jobs.TransformAccess::GetLocalScale
 UnityEngine.Jobs.TransformAccess::GetLocalToWorldMatrix
@@ -998,7 +995,6 @@ UnityEngine.ObjectGUIState::Internal_Create
 UnityEngine.ObjectGUIState::Internal_Destroy
 UnityEngine.ParticleSystem::Emit_Internal_Injected
 UnityEngine.ParticleSystem::Play_Injected
-UnityEngine.ParticleSystem::Stop_Injected
 UnityEngine.ParticleSystemRenderer::GetMeshes_Injected
 UnityEngine.Physics::get_invokeCollisionCallbacks
 UnityEngine.Physics::get_reuseCollisionCallbacks
@@ -1009,10 +1005,10 @@ UnityEngine.Physics::Internal_RaycastAll_Injected
 UnityEngine.Physics::SendOnCollisionEnter_Injected
 UnityEngine.Physics::SendOnCollisionExit_Injected
 UnityEngine.Physics::SendOnCollisionStay_Injected
+UnityEngine.Physics::OverlapSphere_Internal_Injected
 UnityEngine.Physics2D::get_queriesHitTriggers
 UnityEngine.Physics2D::GetRayIntersectionAll_Internal_Injected
 UnityEngine.PhysicsScene::Internal_Raycast_Injected
-UnityEngine.PhysicsScene::Query_SphereCast_Injected
 UnityEngine.PhysicsScene::Internal_RaycastNonAlloc_Injected
 UnityEngine.PhysicsScene2D::GetRayIntersectionArray_Internal_Injected
 UnityEngine.PhysicsScene2D::GetRayIntersection_Internal_Injected
@@ -1435,18 +1431,11 @@ UnityEngine.ResourcesAPIInternal::Load_Injected
 UnityEngine.ResourcesAPIInternal::UnloadAsset_Injected
 UnityEngine.ResourcesAPIInternal::FindObjectsOfTypeAll
 UnityEngine.ResourcesAPIInternal::LoadAll_Injected
-UnityEngine.Rigidbody::get_isKinematic_Injected
 UnityEngine.Rigidbody::AddForce_Injected
 UnityEngine.Rigidbody::get_linearVelocity_Injected
 UnityEngine.Rigidbody::get_position_Injected
-UnityEngine.Rigidbody::set_angularVelocity_Injected
-UnityEngine.Rigidbody::set_collisionDetectionMode_Injected
-UnityEngine.Rigidbody::set_constraints_Injected
-UnityEngine.Rigidbody::set_interpolation_Injected
-UnityEngine.Rigidbody::set_isKinematic_Injected
 UnityEngine.Rigidbody::set_linearVelocity_Injected
 UnityEngine.Rigidbody::set_position_Injected
-UnityEngine.Rigidbody::set_useGravity_Injected
 UnityEngine.ScalableBufferManager::get_heightScaleFactor
 UnityEngine.ScalableBufferManager::get_widthScaleFactor
 UnityEngine.ScalableBufferManager::ResizeBuffers
@@ -1813,11 +1802,7 @@ UnityEngine.TouchScreenKeyboard::set_hideInput
 UnityEngine.TouchScreenKeyboard::set_text_Injected
 UnityEngine.TouchScreenKeyboard::get_inputFieldAppearance
 UnityEngine.TouchScreenKeyboard::get_status_Injected
-UnityEngine.TrailRenderer::Clear_Injected
-UnityEngine.TrailRenderer::SetWidthCurve_Injected
-UnityEngine.TrailRenderer::set_minVertexDistance_Injected
-UnityEngine.TrailRenderer::set_time_Injected
-UnityEngine.TrailRenderer::set_widthMultiplier_Injected
+UnityEngine.TrailRenderer::set_emitting_Injected
 UnityEngine.Transform::IsChildOf_Injected
 UnityEngine.Transform::get_hasChanged_Injected
 UnityEngine.Transform::get_childCount_Injected

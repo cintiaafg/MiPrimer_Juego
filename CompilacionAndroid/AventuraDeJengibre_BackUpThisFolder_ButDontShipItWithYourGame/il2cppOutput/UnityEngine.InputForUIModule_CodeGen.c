@@ -120,6 +120,7 @@ extern void EventProvider_Initialize_m4C3C990C40682BA7B3AD847B6A35EA27080FB939 (
 extern void EventProvider_Shutdown_mC7555B784CCBC1EC859FBD7374E866EC58939D0F (void);
 extern void EventProvider_OnFocusChanged_m26FDB6E1AE2841953DCEE2110FF59D477EFC6D9B (void);
 extern void EventProvider_NotifyUpdate_m30171685ED8559A5E59D74870573E49D70472608 (void);
+extern void EventProvider_SetInputSystemProvider_m6C3F39EF66599573B1E026947568F63F5E64C1DC (void);
 extern void EventProvider___AutoStaticsCleanup_Unity_Scripting_LifecycleManagement_CodeLoadedScope_Exiting_m9899F2DDC9DFB797DD56447560042A6B280C596F (void);
 extern void EventProvider__cctor_m43251A9D75881B0B1D5C406A64C912C587431E3C (void);
 extern void U3CU3Ec__cctor_m58BE846E628A4649079FB42D8AB34515AA282D01 (void);
@@ -222,7 +223,7 @@ extern void EventSanitizer_Reset_m3B7D88555BBA84A9C4EFF2A2770AB161D09F20EB (void
 extern void EventSanitizer_BeforeProviderUpdate_m65F246118381B43BCAD668849185ECEF7C52C971 (void);
 extern void EventSanitizer_AfterProviderUpdate_m3CD0CF9D1169DE1B1B9A96A564069E282B48E9AA (void);
 extern void EventSanitizer_Inspect_m9B438E50B9AE5E6CAF8E03679C90D02D11ACCF73 (void);
-static Il2CppMethodPointer s_methodPointers[246] = 
+static Il2CppMethodPointer s_methodPointers[247] = 
 {
 	EmbeddedAttribute__ctor_m7FE582A5F1727A40CE5DB1AF01F069CA2AE53CE3,
 	RefSafetyRulesAttribute__ctor_m29A1A4E195A437EEA1FA9FEFCF24908951ACD43A,
@@ -345,6 +346,7 @@ static Il2CppMethodPointer s_methodPointers[246] =
 	EventProvider_Shutdown_mC7555B784CCBC1EC859FBD7374E866EC58939D0F,
 	EventProvider_OnFocusChanged_m26FDB6E1AE2841953DCEE2110FF59D477EFC6D9B,
 	EventProvider_NotifyUpdate_m30171685ED8559A5E59D74870573E49D70472608,
+	EventProvider_SetInputSystemProvider_m6C3F39EF66599573B1E026947568F63F5E64C1DC,
 	EventProvider___AutoStaticsCleanup_Unity_Scripting_LifecycleManagement_CodeLoadedScope_Exiting_m9899F2DDC9DFB797DD56447560042A6B280C596F,
 	EventProvider__cctor_m43251A9D75881B0B1D5C406A64C912C587431E3C,
 	U3CU3Ec__cctor_m58BE846E628A4649079FB42D8AB34515AA282D01,
@@ -526,15 +528,15 @@ static Il2CppTokenAdjustorThunkPair s_adjustorThunks[28] =
 	{ 0x0600006B, TextInputEvent_get_eventSource_mD08759B60A91AAC1DD74CD97AABA7F47C1332CF2_AdjustorThunk },
 	{ 0x0600006E, TextInputEvent_get_eventModifiers_m0C34160E76D9DE9F4D307C6EDF4BBF7319BB6E78_AdjustorThunk },
 	{ 0x06000070, TextInputEvent_ToString_m14C55E0242789C632CFE6B231E3C5844BB9C8ABB_AdjustorThunk },
-	{ 0x060000B4, ButtonEventsIterator_MoveNext_m742C90ADEB41243BAA32EE2380C5831ED1792A74_AdjustorThunk },
-	{ 0x060000B5, ButtonEventsIterator_Reset_m178B46B30A239DE2E1A29E7AA98FF1513EDA17F0_AdjustorThunk },
-	{ 0x060000B6, ButtonEventsIterator_System_Collections_IEnumerator_get_Current_mF2064D9D36208EBC155BF0F8150CC36B046AE329_AdjustorThunk },
+	{ 0x060000B5, ButtonEventsIterator_MoveNext_m742C90ADEB41243BAA32EE2380C5831ED1792A74_AdjustorThunk },
+	{ 0x060000B6, ButtonEventsIterator_Reset_m178B46B30A239DE2E1A29E7AA98FF1513EDA17F0_AdjustorThunk },
+	{ 0x060000B7, ButtonEventsIterator_System_Collections_IEnumerator_get_Current_mF2064D9D36208EBC155BF0F8150CC36B046AE329_AdjustorThunk },
 };
 IL2CPP_EXTERN_C const Il2CppCodeGenModule g_UnityEngine_InputForUIModule_CodeGenModule;
 const Il2CppCodeGenModule g_UnityEngine_InputForUIModule_CodeGenModule = 
 {
 	"UnityEngine.InputForUIModule.dll",
-	246,
+	247,
 	s_methodPointers,
 	28,
 	s_adjustorThunks,

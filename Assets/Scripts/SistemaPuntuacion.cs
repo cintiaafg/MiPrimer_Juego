@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,9 @@ public class SistemaPuntuacion : MonoBehaviour
     public TMP_Text textoGameOver;
     public TMP_Text textoNivel;
 
-    [Header("Boton de reinicio")]
+    [Header("Botones de Game Over")]
     public GameObject botonReiniciar;
+    public GameObject botonMenu;
 
     private int mejorPuntuacion;
     private bool partidaFinalizada = false;
@@ -23,21 +25,22 @@ public class SistemaPuntuacion : MonoBehaviour
 
     void Start()
     {
-        // Recuperar el récord guardado
+        Time.timeScale = 1f;
+
+        // Recuperar el récord guardado.
         mejorPuntuacion =
             PlayerPrefs.GetInt(CLAVE_RECORD, 0);
 
-        // Ocultar mensaje de Game Over
+        // Ocultar mensaje de Game Over.
         if (textoGameOver != null)
-        {
             textoGameOver.gameObject.SetActive(false);
-        }
 
-        // Ocultar botón de reinicio
+        // Ocultar botones al iniciar.
         if (botonReiniciar != null)
-        {
             botonReiniciar.SetActive(false);
-        }
+
+        if (botonMenu != null)
+            botonMenu.SetActive(false);
 
         ActualizarRecord();
     }
@@ -49,17 +52,17 @@ public class SistemaPuntuacion : MonoBehaviour
 
         int puntuacionActual = jugador.Puntuacion;
 
-        // Actualizar puntuación
+        // Actualizar puntuación.
         if (textoPuntuacion != null)
         {
             textoPuntuacion.text =
                 "PUNTOS: " + puntuacionActual;
         }
 
-        // Actualizar nivel
+        // Actualizar nivel.
         ActualizarNivel(puntuacionActual);
 
-        // Guardar un nuevo récord
+        // Guardar nuevo récord.
         if (puntuacionActual > mejorPuntuacion)
         {
             mejorPuntuacion = puntuacionActual;
@@ -74,12 +77,12 @@ public class SistemaPuntuacion : MonoBehaviour
             ActualizarRecord();
         }
 
-        // Detectar el final de la partida
+        // Detectar final de partida.
         if (jugador.JuegoTerminado && !partidaFinalizada)
         {
             partidaFinalizada = true;
 
-            // Mostrar mensaje de Game Over
+            // Mostrar Game Over.
             if (textoGameOver != null)
             {
                 textoGameOver.gameObject.SetActive(true);
@@ -89,15 +92,17 @@ public class SistemaPuntuacion : MonoBehaviour
                     "Puntuación: " + puntuacionActual;
             }
 
-            // Mostrar botón de reinicio
+            // Mostrar botón Reiniciar.
             if (botonReiniciar != null)
-            {
                 botonReiniciar.SetActive(true);
-            }
+
+            // Mostrar botón Menú Principal.
+            if (botonMenu != null)
+                botonMenu.SetActive(true);
         }
     }
 
-    // Actualizar el nivel según la puntuación
+    // Actualizar nivel.
     void ActualizarNivel(int puntos)
     {
         if (textoNivel == null)
@@ -117,7 +122,7 @@ public class SistemaPuntuacion : MonoBehaviour
         }
     }
 
-    // Actualizar el récord
+    // Actualizar récord.
     void ActualizarRecord()
     {
         if (textoRecord != null)
@@ -127,7 +132,7 @@ public class SistemaPuntuacion : MonoBehaviour
         }
     }
 
-    // Reiniciar la escena actual
+    // Reiniciar partida.
     public void ReiniciarPartida()
     {
         Time.timeScale = 1f;
@@ -135,5 +140,13 @@ public class SistemaPuntuacion : MonoBehaviour
         SceneManager.LoadScene(
             SceneManager.GetActiveScene().buildIndex
         );
+    }
+
+    // Regresar al menú principal.
+    public void VolverAlMenu()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene("MenuPrincipal");
     }
 }

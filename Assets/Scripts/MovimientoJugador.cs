@@ -1,103 +1,75 @@
+
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof(Collider))]
 public class MovimientoJugador : MonoBehaviour
 {
     [Header("Movimiento")]
     public float velocidadAvance = 5f;
     public float velocidadLateral = 5f;
-    public float fuerzaSalto = 7f;
-
-    [Header("Limites de la pista")]
-    public float limiteIzquierdo = -3.5f;
-    public float limiteDerecho = 3.5f;
-
-    [Header("Deteccion del suelo")]
-    public LayerMask capaSuelo = ~0;
-    public float distanciaDeteccionSuelo = 0.15f;
+    public float fuerzaSalto = 5f;
+    public float limiteLateral = 3f;
 
     [Header("Dificultad progresiva")]
     public float incrementoVelocidad = 0.5f;
     public int puntosPorNivel = 10;
     public float velocidadMaxima = 12f;
 
-    [Header("Efectos visuales")]
+    [Header("Efectos")]
     public ParticleSystem particulasSalto;
     public ParticleSystem particulasAterrizaje;
-
-    [Header("Configuracion de estela")]
     public TrailRenderer estela;
-    public float grosorEstela = 0.035f;
-    public float duracionEstela = 0.20f;
 
-    // Controles moviles
+    [Header("Detección del suelo")]
+    public float radioDeteccionSuelo = 0.2f;
+    public float distanciaDesdePies = 0.08f;
+
+    [Header("Estado del juego")]
+    public bool JuegoTerminado => juegoTerminado;
+    public int Puntuacion { get; private set; }
+
+    // Controles táctiles:
+    // -1 = izquierda
+    //  0 = quieto
+    //  1 = derecha
     public static float mobileX;
-    public static float mobileZ;
 
     private Rigidbody rb;
-    private CapsuleCollider capsule;
+    private Collider colliderJugador;
 
     private bool puedeSaltar;
-    private bool estabaEnSuelo;
     private bool juegoTerminado;
+    private bool estabaEnSuelo;
 
     private float posicionInicialZ;
     private float velocidadActual;
 
-    public int Puntuacion { get; private set; }
-    public bool JuegoTerminado => juegoTerminado;
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        capsule = GetComponent<CapsuleCollider>();
+        colliderJugador = GetComponent<Collider>();
 
         posicionInicialZ = transform.position.z;
         velocidadActual = velocidadAvance;
 
-        mobileX = 0;
-        mobileZ = 0;
+        mobileX = 0f;
+        Puntuacion = 0;
 
-        // Configuracion de fisica
-        rb.useGravity = true;
-        rb.isKinematic = false;
+        juegoTerminado = false;
 
-        rb.collisionDetectionMode =
-            CollisionDetectionMode.ContinuousDynamic;
+        // Permitir el primer salto.
+        puedeSaltar = true;
 
-        rb.interpolation =
-            RigidbodyInterpolation.Interpolate;
+        // Detectar si el personaje comienza sobre el suelo.
+        estabaEnSuelo = EstaEnSuelo();
 
-        rb.constraints =
-            RigidbodyConstraints.FreezeRotation;
+        if (estabaEnSuelo)
+            puedeSaltar = true;
 
-        // Detener particulas al iniciar
-        if (particulasSalto != null)
-            particulasSalto.Stop();
-
-        if (particulasAterrizaje != null)
-            particulasAterrizaje.Stop();
-
-        // Configurar estela
         if (estela != null)
-        {
-            estela.widthMultiplier = grosorEstela;
-
-            estela.widthCurve = new AnimationCurve(
-                new Keyframe(0f, 0.5f),
-                new Keyframe(1f, 0f)
-            );
-
-            estela.time = duracionEstela;
-            estela.minVertexDistance = 0.1f;
-
-            estela.shadowCastingMode =
-                UnityEngine.Rendering.ShadowCastingMode.Off;
-
-            estela.receiveShadows = false;
-            estela.Clear();
-        }
+            estela.emitting = true;
     }
 
     void Update()
@@ -105,145 +77,75 @@ public class MovimientoJugador : MonoBehaviour
         if (juegoTerminado)
             return;
 
-        // Actualizar puntuacion
-        Puntuacion = Mathf.Max(
-            0,
-            Mathf.FloorToInt(
-                transform.position.z - posicionInicialZ
-            )
-        );
+        LeerTeclado();
 
-        // Dificultad progresiva
-        if (puntosPorNivel > 0)
+        ActualizarPuntuacion();
+        ActualizarDificultad();
+
+        DetectarAterrizaje();
+    }
+
+    void FixedUpdate()
+    {
+        if (juegoTerminado)
+            return;
+
+        float movimientoX = mobileX;
+
+        // Controles de teclado para PC.
+        if (Keyboard.current != null)
         {
-            int nivel = Puntuacion / puntosPorNivel;
-
-            velocidadActual = Mathf.Min(
-                velocidadAvance +
-                nivel * incrementoVelocidad,
-                velocidadMaxima
-            );
+            if (Keyboard.current.leftArrowKey.isPressed ||
+                Keyboard.current.aKey.isPressed)
+            {
+                movimientoX = -1f;
+            }
+            else if (Keyboard.current.rightArrowKey.isPressed ||
+                     Keyboard.current.dKey.isPressed)
+            {
+                movimientoX = 1f;
+            }
         }
 
-        // Salto mediante teclado
-        if (Input.GetKeyDown(KeyCode.Space))
+        Vector3 velocidad = rb.linearVelocity;
+
+        // Movimiento lateral.
+        velocidad.x = movimientoX * velocidadLateral;
+
+        // Avance automático.
+        velocidad.z = velocidadActual;
+
+        rb.linearVelocity = velocidad;
+
+        LimitarMovimiento();
+    }
+
+    // Leer el teclado.
+    void LeerTeclado()
+    {
+        if (Keyboard.current != null &&
+            Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Saltar();
         }
     }
 
-    void FixedUpdate()
-    {
-        if (juegoTerminado || rb == null || rb.isKinematic)
-            return;
-
-        // Comprobar si el jugador esta sobre el suelo
-        ComprobarSuelo();
-
-        // Movimiento lateral
-        float tecladoX = Input.GetAxisRaw("Horizontal");
-
-        float movimientoX = tecladoX != 0
-            ? tecladoX
-            : mobileX;
-
-        movimientoX = Mathf.Clamp(movimientoX, -1f, 1f);
-
-        // Mantener avance automatico y velocidad vertical
-        Vector3 nuevaVelocidad = new Vector3(
-            movimientoX * velocidadLateral,
-            rb.linearVelocity.y,
-            velocidadActual
-        );
-
-        // Limites laterales
-        Vector3 posicion = rb.position;
-
-        if (posicion.x <= limiteIzquierdo)
-        {
-            posicion.x = limiteIzquierdo;
-
-            if (nuevaVelocidad.x < 0)
-                nuevaVelocidad.x = 0;
-        }
-
-        if (posicion.x >= limiteDerecho)
-        {
-            posicion.x = limiteDerecho;
-
-            if (nuevaVelocidad.x > 0)
-                nuevaVelocidad.x = 0;
-        }
-
-        rb.position = posicion;
-        rb.linearVelocity = nuevaVelocidad;
-    }
-
-    // Comprobar si el jugador esta tocando el suelo
-    private void ComprobarSuelo()
-    {
-        Bounds limites = capsule.bounds;
-
-        float radio = Mathf.Max(
-            0.05f,
-            Mathf.Min(limites.extents.x, limites.extents.z) * 0.8f
-        );
-
-        Vector3 origen = new Vector3(
-            limites.center.x,
-            limites.min.y + radio + 0.03f,
-            limites.center.z
-        );
-
-        bool enSuelo = Physics.SphereCast(
-            origen,
-            radio,
-            Vector3.down,
-            out RaycastHit impacto,
-            distanciaDeteccionSuelo + 0.03f,
-            capaSuelo,
-            QueryTriggerInteraction.Ignore
-        );
-
-        // No considerar los obstaculos como suelo
-        if (enSuelo &&
-            TieneTagEnJerarquia(impacto.collider.transform, "obstaculo"))
-        {
-            enSuelo = false;
-        }
-
-        puedeSaltar = enSuelo;
-
-        // Detectar aterrizaje
-        if (enSuelo && !estabaEnSuelo)
-        {
-            if (particulasAterrizaje != null)
-                particulasAterrizaje.Play();
-        }
-
-        estabaEnSuelo = enSuelo;
-    }
-
-    // Ejecutar salto
+    // Saltar desde teclado o botón táctil.
     public void Saltar()
     {
-        if (!puedeSaltar ||
-            juegoTerminado ||
-            rb == null ||
-            rb.isKinematic)
-        {
+        if (juegoTerminado || !puedeSaltar)
             return;
-        }
 
         puedeSaltar = false;
-        estabaEnSuelo = false;
 
-        // Reiniciar velocidad vertical
-        Vector3 velocidad = rb.linearVelocity;
-        velocidad.y = 0;
-        rb.linearVelocity = velocidad;
+        // Eliminar velocidad vertical anterior.
+        rb.linearVelocity = new Vector3(
+            rb.linearVelocity.x,
+            0f,
+            rb.linearVelocity.z
+        );
 
-        // Aplicar impulso
+        // Aplicar fuerza de salto.
         rb.AddForce(
             Vector3.up * fuerzaSalto,
             ForceMode.Impulse
@@ -251,79 +153,151 @@ public class MovimientoJugador : MonoBehaviour
 
         if (particulasSalto != null)
             particulasSalto.Play();
-
-        Debug.Log("¡Jengibre esta saltando!");
     }
 
-    // Comprobar Tag en el objeto o sus padres
-    private bool TieneTagEnJerarquia(
-        Transform objeto,
-        string tag
-    )
+    // Detectar si el jugador está sobre una superficie.
+    bool EstaEnSuelo()
     {
-        while (objeto != null)
-        {
-            if (objeto.CompareTag(tag))
-                return true;
+        if (colliderJugador == null)
+            return false;
 
-            objeto = objeto.parent;
+        Vector3 puntoPies = new Vector3(
+            colliderJugador.bounds.center.x,
+            colliderJugador.bounds.min.y + distanciaDesdePies,
+            colliderJugador.bounds.center.z
+        );
+
+        Collider[] colisiones = Physics.OverlapSphere(
+            puntoPies,
+            radioDeteccionSuelo
+        );
+
+        foreach (Collider colision in colisiones)
+        {
+            if (colision == colliderJugador)
+                continue;
+
+            // Ignorar los colliders hijos del jugador.
+            if (colision.transform.IsChildOf(transform))
+                continue;
+
+            if (colision.isTrigger)
+                continue;
+
+            return true;
         }
 
         return false;
     }
 
-    // Detectar colisiones
-    private void OnCollisionEnter(Collision collision)
+    // Detectar aterrizaje y habilitar otro salto.
+    void DetectarAterrizaje()
     {
-        Debug.Log(
-            "Colision detectada con: " +
-            collision.collider.name
+        bool enSuelo = EstaEnSuelo();
+
+        if (enSuelo)
+        {
+            puedeSaltar = true;
+
+            // Ejecutar partículas al aterrizar.
+            if (!estabaEnSuelo &&
+                particulasAterrizaje != null)
+            {
+                particulasAterrizaje.Play();
+            }
+        }
+
+        estabaEnSuelo = enSuelo;
+    }
+
+    // Limitar el movimiento lateral.
+    void LimitarMovimiento()
+    {
+        Vector3 posicion = rb.position;
+
+        posicion.x = Mathf.Clamp(
+            posicion.x,
+            -limiteLateral,
+            limiteLateral
         );
 
-        // Detectar obstaculos
-        if (TieneTagEnJerarquia(
-            collision.collider.transform,
-            "obstaculo"))
-        {
-            Debug.Log("¡Jengibre choco con un obstaculo!");
+        rb.position = posicion;
+    }
 
+    // Actualizar puntuación según la distancia recorrida.
+    void ActualizarPuntuacion()
+    {
+        Puntuacion = Mathf.Max(
+            0,
+            Mathf.FloorToInt(
+                transform.position.z - posicionInicialZ
+            )
+        );
+    }
+
+    // Aumentar velocidad progresivamente.
+    void ActualizarDificultad()
+    {
+        int nivel = 0;
+
+        if (puntosPorNivel > 0)
+            nivel = Puntuacion / puntosPorNivel;
+
+        velocidadActual = Mathf.Min(
+            velocidadAvance +
+            (nivel * incrementoVelocidad),
+            velocidadMaxima
+        );
+    }
+
+    // Detectar colisiones con obstáculos.
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("obstaculo"))
+        {
             TerminarJuego();
         }
     }
 
-    // Terminar partida
+    // Finalizar partida.
     public void TerminarJuego()
     {
         if (juegoTerminado)
             return;
 
         juegoTerminado = true;
-        puedeSaltar = false;
-        estabaEnSuelo = false;
+        mobileX = 0f;
 
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
-
-        if (particulasSalto != null)
-            particulasSalto.Stop();
-
-        if (particulasAterrizaje != null)
-            particulasAterrizaje.Stop();
+        rb.linearVelocity = Vector3.zero;
 
         if (estela != null)
-            estela.Clear();
-
-        Debug.Log(
-            "GAME OVER. Puntuacion: " + Puntuacion
-        );
+            estela.emitting = false;
     }
 
-    public float ObtenerVelocidad()
+    // Limpiar el control táctil al desactivar el jugador.
+    private void OnDisable()
     {
-        return velocidadActual;
+        mobileX = 0f;
+    }
+
+    // Mostrar visualmente la detección del suelo en Scene.
+    private void OnDrawGizmosSelected()
+    {
+        Collider col = GetComponent<Collider>();
+
+        if (col == null)
+            return;
+
+        Vector3 puntoPies = new Vector3(
+            col.bounds.center.x,
+            col.bounds.min.y + distanciaDesdePies,
+            col.bounds.center.z
+        );
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(
+            puntoPies,
+            radioDeteccionSuelo
+        );
     }
 }
